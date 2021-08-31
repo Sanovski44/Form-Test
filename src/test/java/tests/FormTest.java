@@ -1,53 +1,71 @@
 package tests;
 
-import static com.codeborne.selenide.Condition.*;
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.selector.ByText;
+import com.github.javafaker.Faker;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
+import pages.RegistrationPage;
+import utils.RandomUtils;
 
-import java.io.File;
-
-import static com.codeborne.selenide.Selectors.byCssSelector;
-import static com.codeborne.selenide.Selectors.byText;
-import static com.codeborne.selenide.Selenide.*;
 
 public class FormTest {
 
+    RegistrationPage registrationPage = new RegistrationPage();
+    Faker faker = new Faker();
+    RandomUtils utils = new RandomUtils();
+
+    String firstName = faker.name().firstName();
+    String lastName = faker.name().lastName();
+    String email = faker.internet().emailAddress();
+    String gender = faker.demographic().sex();
+    String phoneNumber = faker.phoneNumber().subscriberNumber(10);
+    String day = "28";
+    String month = "6";
+    String year = "1990";
+    String subject = utils.getRandomSubject();
+    String hobby = utils.getRandomHobby();
+    String pathname = "avatars.jpg";
+    String address = faker.address().streetAddress();
+    String state = "NCR";
+    String city = "Delhi";
+
+
     @BeforeAll
-    static void setup(){
+    static void setup() {
         Configuration.baseUrl = "https://demoqa.com";
         Configuration.startMaximized = true;
     }
 
     @Test
-    void formTest(){
-        open("/automation-practice-form");      // Открываем сайт
-        $("#firstName").setValue("Alex");              // Вводим имя
-        $("#lastName").setValue("Djabuddinov");        // Вводим фамилию
-        $("#userEmail").setValue("google@yamail.com"); // Вводим мыло
-        //sleep(5000);
-        $("[for = 'gender-radio-1']").click();          // Выбираем пол
-        $("#userNumber").setValue("0123456789");        // Номер
-        $("#dateOfBirthInput").click();                 // Дата рождения
-        $(".react-datepicker__month-select").selectOptionByValue("5");
-        $(".react-datepicker__year-select").selectOptionByValue("1992");
-        $(".react-datepicker__day--028").click();
-        $("#subjectsInput").click();                     // Выбираем предмет
-        $("#subjectsInput").setValue("Physics").pressEnter();
-        $("[for = 'hobbies-checkbox-1']").click();       // Выбираем хобби
-        $("#uploadPicture").uploadFile(new File("avatars.jpg")); //Загружаем файл
-        $("#currentAddress").setValue("Adress");         // Вводим адрес
-        $("#react-select-3-input").setValue("NCR").pressEnter(); // Штат
-        $("#react-select-4-input").setValue("Delhi").pressEnter(); // Город
-        $("#submit").click();                            // Отправить
-        $("#example-modal-sizes-title-lg").shouldHave(text("Thanks for submitting the form")); // Проверка
+    void formTest() {
+
+        registrationPage
+                .openPage()
+                .typeFirstName(firstName)
+                .typeLastName(lastName)
+                .typeEmail(email)
+                .selectGender(gender)
+                .typePhone(phoneNumber)
+                .setDateOfBirth(day, month, year)
+                .selectSubject(subject)
+                .selectHobby(hobby)
+                .uploadFile(pathname)
+                .enterAddress(address)
+                .selectState(state)
+                .selectCity(city)
+                .submitForm()
+                .checkResultsTitle()
+                .checkResultsValue(firstName + " " + lastName)
+                .checkResultsValue(email)
+                .checkResultsValue(gender)
+                .checkResultsValue(phoneNumber)
+                .checkResultsValue(day + " July" + "," + year)
+                .checkResultsValue(subject)
+                .checkResultsValue(hobby)
+                .checkResultsValue("avatars.jpg")
+                .checkResultsValue(address)
+                .checkResultsValue(state + " " + city);
 
 
-
-
-        sleep(10000);
     }
 }
